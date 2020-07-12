@@ -1,0 +1,241 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "main.cpp",
+			"settings":
+			{
+				"buffer_size": 5613,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"inst",
+				"Deviot: Find/Install Library"
+			],
+			[
+				"",
+				"Arithmetic"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Remove Repository"
+			],
+			[
+				"Deviot: ",
+				"Deviot: Select Board"
+			],
+			[
+				"pa",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 305.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/mike/sketchbook/CVan_Env/src/main.cpp",
+		"/home/mike/sketchbook/PIO_test/src/main.sublime-project",
+		"/home/mike/sketchbook/CVan_Env/main.cpp",
+		"/home/mike/sketchbook/PIO_test/src/main.cpp",
+		"/home/mike/.platformio/lib/TinyGPSPlus_ID1655/examples/KitchenSink/KitchenSink.ino",
+		"/home/mike/sketchbook/main.cpp",
+		"/home/mike/.platformio/lib/TinyGPSPlus_ID1655/src/TinyGPS++.cpp",
+		"/home/mike/.platformio/lib/TinyGPSPlus_ID1655/examples/UsingCustomFields/UsingCustomFields.ino",
+		"/home/mike/.arduino15/cache/downloads.arduino.cc/packages/package_index.json",
+		"/home/mike/.arduino15/cache/downloads.arduino.cc/packages/package_index.json.sig",
+		"/home/mike/.config/sublime-text-3/Packages/User/Package Control.sublime-settings",
+		"/tmp/Deviot/1586761889/src/1586761889.ino",
+		"/home/mike/sketchbook/myFile_1/myFile_1.ino",
+		"/home/mike/sketchbook/Blink/Blink.ino",
+		"/tmp/Deviot/Blink/platformio.ini",
+		"/home/mike/sketchbook/MyDeviot_1/MyDeviot_1.ino",
+		"/home/mike/arduino-1.8.12/examples/01.Basics/Blink/Blink.ino",
+		"/home/mike/.config/sublime-text-3/Packages/Package Control/Package Control.sublime-settings"
+	],
+	"find":
+	{
+		"height": 26.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "main.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5613,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Deviot (Arduino IDE)/deviot.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 39.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "main.sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
