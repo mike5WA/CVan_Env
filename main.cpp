@@ -136,7 +136,7 @@ String LatStr,LongStr;      //Strings for Lat & Long
 //Co-Ordinates for distance & bearing calcs
 //5 Urbahns -31.813900:115.745300  Sydney -33.865143:151.209900
 float Urbahns_Lat = -31.813900;   
-float Urbahns_Lon = 115.745300;
+float Urbahns_Lon = 115.745400;
 int distanceTo5Urbahns, courseTo5Urbahns ;
 const char* bearingTo5Urbahns;
 
@@ -212,9 +212,9 @@ void getWeather()
   // Temperature is measured every time RH is requested.
   // It is faster, therefore, to read it from previous RH
   // measurement with getTemp() instead with readTemp()
-  //Convert to centigrade
-  tempc = ((tempf-32)/1.8);
-  //Get temp from DS18B20
+  //Convert to centigrade 
+  tempc = ((tempf-32)/1.8)-4;   //Deduct 4 degrees to offset heat from arduino
+  //Get temp from DS18B20 outside sensor
   DS18B20.requestTemperatures();
   externaltempc = DS18B20.getTempCByIndex(0);
   hpa = (myPressure.readPressure()/100);
@@ -346,11 +346,11 @@ Starts at 28800 and adds 1800 increments to 39600 (WST + 3hrs)
 Then decrease from 39600 back to 28800 (WST)
 There is a 5sec delay in running the void loop so will get 5 sec between actions
 When led lights routine to increase decrease time is running
-*/
 
-//Monitor A0 which will give value between 0 (grd) & 1023 (5v)
-//If not pressed TZButtonState will return 1023 as it is pulled high
-//When button pressed A0 taken to ground value < 1023
+Monitor A0 which will give value between 0 (grd) & 1023 (5v)
+If not pressed TZButtonState will return 1023 as it is pulled high
+When button pressed A0 taken to ground value < 1023
+*/
 
   TZButtonState = analogRead(A0);
   if (TZButtonState == 1023) 
@@ -374,6 +374,8 @@ When led lights routine to increase decrease time is running
     if ((TZ <= 28800)) (TZDirection = 1); //Move east +1800 second increments
     if ((TZ >= 39600)) (TZDirection = 0); //Move west -1800 second increments
   }
+  smartDelay(2000);
+  digitalWrite(A1, LOW);  //Turn LED off
 } 
 
 //-----------------------------------------------------------------
@@ -467,7 +469,7 @@ lcd.print(lcdRow3);
 
 void loop()
 {
-  smartDelay(5000); //5 sec gap between readings
+  smartDelay(5000);   //5 sec gap between readings
   gps_data();
   TZAdjust();
   getWeather();
