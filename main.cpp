@@ -1,4 +1,12 @@
 /******************************************************************************
+  Mike Garner 25th July 2020
+
+  Sparkfun weather sensor to provide data for display on 20 * 4 LCD
+  GPS data converted to display day of week, month, year etc via guassian algorithm
+  Locale Perth WA so UTC time adjusted by 8hrs 28,800 seconds
+  Unit installed in campervan so routine to adjust for timezones for travel
+  (3 hr in 30 min increments) commencing West to East & back
+
   SparkFun Si7021 Breakout  
   Hardware Connections:
       HTU21D ------------- Photon
@@ -8,8 +16,8 @@
        DA ------------------- D0/SDA
 
   Hardware Platform: SparkFun RedBoard     Arduino IDE 1.6.5
-    2nd temp sensor is 1 wire Dallas DS18B20 connected to pin 2
-    Pressure sensor is MPL3115A2 can also supply temp and altitude 
+  2nd temp sensor is 1 wire Dallas DS18B20 connected to pin 2
+  Pressure sensor is MPL3115A2 can also supply temp and altitude 
   
   GPS is Tiny GPS; Uno RX = 5 TX = 4 ; Used baud of 9600 not 4800 for software serial
   
@@ -32,7 +40,7 @@
       lcd 15  +5v Backlight for PWM control to Uno 3
       lcd 16  Grd Backlight
 
-  UNO Digital Pins used
+UNO Digital Pins used
   D0    RX  Used when gps set to UART NB set switch to SW to upload
   D1    TX  Used when gps set to UART NB set switch to SW to upload   
   D2    to DB18B20 data pin
@@ -48,15 +56,16 @@
   D12   to lcd 14 DB7
   D13   used by uno/shield led
 
-  UNO Analog Pins used
+UNO Analog Pins used
   A0  to timezone button. Pulled high so when button pressed pulled low
   A1  to timezone led to indicate timezone being changed 
   A2  Ground likely used to ground shield
   A3  Power likely used to power shield
-  A4 
-  A5    
+  A4  n/c
+  A5  n/c  
 
 *******************************************************************************/
+//Libraries
 #include "SparkFun_Si7021_Breakout_Library.h"
 #include <Wire.h>
 #include <OneWire.h>                //Required by DS18B20
@@ -80,10 +89,8 @@ int brightness = 128;
 long TZ = 28800;              //WST = UTC+8hrs in seconds
 int TZButtonState = 0;        //Timezone button monitor A0
 int TZDirection = 1;          //Assumes starting in WST
-
-unsigned long startMillis;
-unsigned long last = 0UL; //Use for timer with millis()
-unsigned long period;
+int period = 5000;            //Period between weather data readings
+unsigned long startMillis = 0;
 
 //Create custom char House & Tree for In/Out temp display
 byte house[8]={B00000,B00100,B01010,B10001,B01110,B01110,B01110,B00000};        //lcd char 1
@@ -110,7 +117,7 @@ const int RS = 7, EN = 8, DB4 = 9, DB5 = 10, DB6 = 11, DB7 = 12;
 
 //Tiny GPS
 static const int RXPin = 5, TXPin = 4;
-static const uint32_t GPSBaud = 9600;   //Baud rate for GPS 4800 not working
+static const uint32_t GPSBaud = 9600;   //Baud rate for GPS 4800 did not work
 
 // The TinyGPS++ object
 TinyGPSPlus gps;
@@ -118,12 +125,13 @@ TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
 
 // Define variables for GPS data
-unsigned long age;            //Used to get age of gps data
-int gpsYear,gpsMonth,gpsDay;  //Calculated from gps data
-int hr,min,sec;               //hours, minutes, seconds
-const int offset = 8;         //Perth offset hours from UTC
+unsigned long age;              //Used to get age of gps data
+int gpsYear,gpsMonth,gpsDay;    //Calculated from gps data
+int hr,min,sec;                 //hours, minutes, seconds
+const int offset = 8;           //Perth offset hours from UTC
 String WeekDay = "";        
 String TheMonth = "";
+
 //Arrays for Days of Week & Months of Year
 const char* DOW[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 const char* MOY[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -133,14 +141,14 @@ int Sats, altitude;
 static char dToString[8];   //Create array to take float values for dtostrf function
 String LatStr,LongStr;      //Strings for Lat & Long
 
-//Co-Ordinates for distance & bearing calcs
+//Co-Ordinates for distance & bearing calcs amend as required
 //5 Urbahns -31.813900:115.745300  Sydney -33.865143:151.209900
 float Urbahns_Lat = -31.813900;   
 float Urbahns_Lon = 115.745400;
 int distanceTo5Urbahns, courseTo5Urbahns ;
 const char* bearingTo5Urbahns;
 
-//On time & Off time for display 24 hr clock
+//On time & Off time for display 
 int OnTime = 6;
 int OffTime = 21;
 
@@ -208,12 +216,12 @@ void getWeather()
   // Measure Relative Humidity from the Si7021
   humidity = sensor.getRH();
   // Measure Temperature from the Si7021
-  tempf = sensor.getTempF();
   // Temperature is measured every time RH is requested.
   // It is faster, therefore, to read it from previous RH
-  // measurement with getTemp() instead with readTemp()
-  //Convert to centigrade 
-  tempc = ((tempf-32)/1.8)-4;   //Deduct 4 degrees to offset heat from arduino
+  // measurement with getTemp() instead of readTemp()
+  tempf = sensor.getTempF();
+  //Convert to centigrade deduct 4 degrees to offset heat from arduino
+  tempc = ((tempf-32)/1.8)-4;   
   //Get temp from DS18B20 outside sensor
   DS18B20.requestTemperatures();
   externaltempc = DS18B20.getTempCByIndex(0);
@@ -283,17 +291,18 @@ void gps_data()
   monthofyear = gpsMonth - 1;     //Adjust month as array starts at 0
   TheMonth = MOY[monthofyear];    //Fetch month string from array MOY
 
-  if (gps.satellites.isUpdated())  Sats = (gps.satellites.value());
+  if (gps.satellites.isUpdated()) Sats = (gps.satellites.value());
+     
   if (gps.location.isUpdated())
   {
-  Lat = (gps.location.lat());       
-  Long = (gps.location.lng());
+    Lat = (gps.location.lat());       
+    Long = (gps.location.lng());
     
   //Convert Lat & Long to string via digitalToString()
-  DigitalToString(Lat,7,3);
-  LatStr = dToString;
-  DigitalToString(Long,7,3);
-  LongStr = dToString;
+    DigitalToString(Lat,7,3);
+    LatStr = dToString;
+    DigitalToString(Long,7,3);
+    LongStr = dToString;
   }
 
  //Altitude 
@@ -306,7 +315,7 @@ void gps_data()
     gps.location.lng(),
     Urbahns_Lat,
     Urbahns_Lon);
-    distanceTo5Urbahns = (distanceTo5Urbahns/10);
+    distanceTo5Urbahns = (distanceTo5Urbahns/10); //Converted to Km
 
   courseTo5Urbahns =
   TinyGPSPlus::courseTo(
@@ -344,8 +353,7 @@ void TZAdjust()
 Function to loop through 6 * 30 min adjustments on button press
 Starts at 28800 and adds 1800 increments to 39600 (WST + 3hrs)
 Then decrease from 39600 back to 28800 (WST)
-There is a 5sec delay in running the void loop so will get 5 sec between actions
-When led lights routine to increase decrease time is running
+When led lights routine to increase decrease time has been actioned
 
 Monitor A0 which will give value between 0 (grd) & 1023 (5v)
 If not pressed TZButtonState will return 1023 as it is pulled high
@@ -373,9 +381,10 @@ When button pressed A0 taken to ground value < 1023
     } 
     if ((TZ <= 28800)) (TZDirection = 1); //Move east +1800 second increments
     if ((TZ >= 39600)) (TZDirection = 0); //Move west -1800 second increments
+
+    smartDelay(1500);       //Keep led on for short time
+    digitalWrite(A1, LOW);  //Turn LED off
   }
-  smartDelay(2000);
-  digitalWrite(A1, LOW);  //Turn LED off
 } 
 
 //-----------------------------------------------------------------
@@ -383,7 +392,8 @@ When button pressed A0 taken to ground value < 1023
 void printInfo()
 {
 //This function prints the data out to the default Serial Port
-  Serial.print(" Internal Temp:");
+//Comment out in void loop or individually as required
+  Serial.print("Internal Temp:");
   Serial.print(tempc);
   Serial.print("C, ");
   Serial.print(" External Temp:");
@@ -414,7 +424,7 @@ void printInfo()
   Serial.println(gpsDay);
 
   Serial.print("Satelites ");
-  Serial.print(Sats);
+  Serial.print(gps.satellites.value());
   Serial.print(" C-ords : ");
   Serial.print(Lat, 6);
   Serial.print(":");
@@ -469,12 +479,18 @@ lcd.print(lcdRow3);
 
 void loop()
 {
-  smartDelay(5000);   //5 sec gap between readings
-  gps_data();
-  TZAdjust();
-  getWeather();
-  printInfo();
+  //Need if statemnt here so weather data only sourced every 5 seconds
+  if (millis() > (startMillis + period))   //5 seconds has elapsed get weather data and print
+  {
+    getWeather();
+    printInfo();
+    startMillis = millis();
+  }
   
+  smartDelay(1000);   //Delay 1 sec
+  gps_data();         //Time thus updated every second
+  TZAdjust();         //Time zone change routine
+    
   //Turn on display between OnTime & OffTime
   if ((hr >= OnTime) && (hr < OffTime))   
   {
