@@ -89,7 +89,7 @@ int brightness = 128;
 long TZ = 28800;              //WST = UTC+8hrs in seconds
 int TZButtonState = 0;        //Timezone button monitor A0
 int TZDirection = 1;          //Assumes starting in WST
-int period = 5000;            //Period between weather data readings
+int period = 8500;            //Period ms between weather data readings
 unsigned long startMillis = 0;
 
 //Create custom char House & Tree for In/Out temp display
@@ -142,11 +142,11 @@ static char dToString[8];   //Create array to take float values for dtostrf func
 String LatStr,LongStr;      //Strings for Lat & Long
 
 //Co-Ordinates for distance & bearing calcs amend as required
-//5 Urbahns -31.813900:115.745300  Sydney -33.865143:151.209900
-float Urbahns_Lat = -31.813900;   
-float Urbahns_Lon = 115.745400;
-int distanceTo5Urbahns, courseTo5Urbahns ;
-const char* bearingTo5Urbahns;
+//eg 5 Urbahns -31.814000:115.745500  Sydney -33.865143:151.209900
+float my_Lat = -31.814000;   
+float my_Lon = 115.745500;
+int distanceToDest, courseToDest ;
+const char* bearingToDest;
 
 //On time & Off time for display 
 int OnTime = 6;
@@ -220,7 +220,7 @@ void getWeather()
   // It is faster, therefore, to read it from previous RH
   // measurement with getTemp() instead of readTemp()
   tempf = sensor.getTempF();
-  //Convert to centigrade deduct 4 degrees to offset heat from arduino
+  //Convert to centigrade deduct 4 degrees to offset heat from arduino processor
   tempc = ((tempf-32)/1.8)-4;   
   //Get temp from DS18B20 outside sensor
   DS18B20.requestTemperatures();
@@ -309,21 +309,21 @@ void gps_data()
  if (gps.altitude.isUpdated())  altitude = (gps.altitude.meters());
 
  //Distance & bearing routine
-  distanceTo5Urbahns = 
+  distanceToDest = 
   TinyGPSPlus::distanceBetween(
     gps.location.lat(),
     gps.location.lng(),
-    Urbahns_Lat,
-    Urbahns_Lon);
-    distanceTo5Urbahns = (distanceTo5Urbahns/10); //Converted to Km
+    my_Lat,
+    my_Lon);
+    distanceToDest = (distanceToDest/10); //Converted to Km
 
-  courseTo5Urbahns =
+  courseToDest =
   TinyGPSPlus::courseTo(
     gps.location.lat(),
     gps.location.lng(),
-    Urbahns_Lat, 
-    Urbahns_Lon);
-    bearingTo5Urbahns = (TinyGPSPlus::cardinal(courseTo5Urbahns));
+    my_Lat, 
+    my_Lon);
+    bearingToDest = (TinyGPSPlus::cardinal(courseToDest));
     
   if (gps.charsProcessed() < 10)
     Serial.println(F("WARNING: No GPS data!!"));
@@ -348,7 +348,6 @@ static void smartDelay(unsigned long ms)
 
 void TZAdjust()
 {
-
 /*
 Function to loop through 6 * 30 min adjustments on button press
 Starts at 28800 and adds 1800 increments to 39600 (WST + 3hrs)
@@ -436,11 +435,11 @@ void printInfo()
 
   Serial.print("Alt ");
   Serial.print(altitude);
-  Serial.print("m  DtP ");
-  Serial.print(distanceTo5Urbahns);
+  Serial.print("m  DtD ");
+  Serial.print(distanceToDest);
   Serial.print("km ");
   Serial.print(" Bearing ");
-  Serial.println(bearingTo5Urbahns);
+  Serial.println(bearingToDest);
   Serial.println("");
 
   Serial.print("Timezone ");
@@ -462,7 +461,7 @@ void printToLCD()
 sprintf(lcdRow0, " %s-%s-%.2d %.2d:%.2d:%.2d", WeekDay.c_str(), TheMonth.c_str(), gpsDay, hr, min, sec);
 sprintf(lcdRow1, "%c%.2d %c%.2d H%d%% P%.4d", 1, tempc, 2, externaltempc, humidity,hpa); //1 & 2 are defined chars house & tree
 sprintf(lcdRow2, "%c%d %c%7s %c%7s", 5, Sats, 3, LatStr.c_str(), 4, LongStr.c_str()); 
-sprintf(lcdRow3, "m%c%-4d H%.4dkm %c%-3s", 6,altitude, distanceTo5Urbahns, 7, bearingTo5Urbahns);
+sprintf(lcdRow3, "m%c%-4d H%.4dkm %c%-3s", 6,altitude, distanceToDest, 7, bearingToDest);
 
 lcd.setCursor(0,0);
 lcd.print(lcdRow0);
